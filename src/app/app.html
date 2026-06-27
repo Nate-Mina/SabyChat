@@ -1,0 +1,184 @@
+<div class="relative min-h-screen grid grid-cols-1 lg:grid-cols-[1fr_450px] overflow-hidden bg-sabrina-dark selection:bg-sabrina-accent/30">
+  
+  <!-- Left Side: The Void (Atmospheric Background + Fragments) -->
+  <div class="relative flex flex-col items-center justify-center p-8 lg:p-12 overflow-hidden border-r border-white/5">
+    
+    <!-- Atmospheric Background -->
+    <div class="absolute inset-0 opacity-40 pointer-events-none">
+      <div class="absolute top-[20%] left-[10%] w-[40vw] h-[40vw] rounded-full bg-sabrina-accent/10 blur-[120px] animate-pulse"></div>
+      <div class="absolute bottom-[10%] right-[10%] w-[30vw] h-[30vw] rounded-full bg-indigo-900/10 blur-[100px]"></div>
+    </div>
+
+    <!-- Shards (Floating Memories) -->
+    <div class="shard absolute top-[15%] left-[15%] glass-surface p-4 max-w-[200px] rounded-lg cracked-border animate-float" style="animation-delay: 0s">
+      <span class="text-[10px] uppercase tracking-widest text-sabrina-muted mb-2 block">Fragment: Tommy</span>
+      <p class="text-xs italic text-white/70">"You're lucky to even be here, Sabrina. Nobody else would bother."</p>
+    </div>
+
+    <div class="shard absolute top-[60%] left-[12%] glass-surface p-4 max-w-[220px] rounded-lg cracked-border animate-float" style="animation-delay: 2s">
+      <span class="text-[10px] uppercase tracking-widest text-sabrina-muted mb-2 block">Fragment: Nate</span>
+      <p class="text-xs italic text-white/70">"I love you, Sab. Why can't you just trust that?"</p>
+    </div>
+
+    <div class="shard absolute bottom-[15%] left-[40%] glass-surface p-4 max-w-[180px] rounded-lg cracked-border animate-float" style="animation-delay: 4s">
+      <span class="text-[10px] uppercase tracking-widest text-sabrina-muted mb-2 block">Fragment: Reflection</span>
+      <p class="text-xs italic text-white/70">"He says he loves me, but why would he?"</p>
+    </div>
+
+    <!-- Center Quote -->
+    <div class="z-10 text-center max-w-2xl px-6">
+      <h1 class="font-serif italic text-4xl md:text-6xl lg:text-7xl text-white leading-tight mb-8 tracking-tighter">
+        Vulnerability is a <span class="text-sabrina-accent">Trap</span>.
+      </h1>
+      <p class="font-sans text-sabrina-muted uppercase tracking-[0.2em] text-[10px] mb-12">
+        A study of self-preservation through pessimism
+      </p>
+
+      <!-- Internal Monologue Feed -->
+      <div class="space-y-4 max-w-md mx-auto">
+        @for (thought of initialThoughts; track $index) {
+          <div class="flex items-center gap-4 opacity-0 animate-[fadeIn_1s_ease-out_forwards]" [style.animation-delay]="$index * 0.5 + 's'">
+            <div class="w-1 h-1 rounded-full bg-sabrina-accent"></div>
+            <p class="text-sm font-light text-white/50 italic text-left">{{ thought }}</p>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+
+  <!-- Right Side: The Mask (Interactive Interface) -->
+  <div class="glass-surface border-l border-white/10 flex flex-col h-screen">
+    
+    <!-- Header -->
+    <div class="p-6 border-bottom border-white/10 flex items-center justify-between">
+      <div>
+        <h2 class="font-serif italic text-xl">Sabrina</h2>
+        <span class="text-[10px] tracking-widest uppercase text-sabrina-muted">Status: Guarded</span>
+      </div>
+      <div class="flex gap-2">
+        <button 
+          (click)="activeTab.set('chat')"
+          class="text-[10px] uppercase tracking-widest px-3 py-1 rounded transition-colors"
+          [class.bg-white/10]="activeTab() === 'chat'"
+          [class.text-white]="activeTab() === 'chat'"
+          [class.text-sabrina-muted]="activeTab() !== 'chat'">
+          Dialogue
+        </button>
+        <button 
+          (click)="activeTab.set('shadow')"
+          class="text-[10px] uppercase tracking-widest px-3 py-1 rounded transition-colors"
+          [class.bg-white/10]="activeTab() === 'shadow'"
+          [class.text-white]="activeTab() === 'shadow'"
+          [class.text-sabrina-muted]="activeTab() !== 'shadow'">
+          Shadow
+        </button>
+      </div>
+    </div>
+
+    <!-- Content Area (Dialogue or Shadow) -->
+    <div class="flex-1 overflow-hidden flex flex-col">
+      
+      <!-- Chat View (Dialogue) -->
+      @if (activeTab() === 'chat') {
+        <div #chatScroll class="flex-1 overflow-y-auto p-6 space-y-6 scrollbar-hide">
+          @if (messages().length === 0) {
+            <div class="h-full flex flex-col items-center justify-center text-center p-8">
+              <mat-icon class="text-sabrina-accent/20 text-4xl mb-4">remove_red_eye</mat-icon>
+              <p class="text-xs text-sabrina-muted italic">"Say something. I'm already waiting for the lie."</p>
+            </div>
+          }
+
+          @for (msg of messages(); track $index) {
+            <div class="flex flex-col" [class.items-end]="msg.role === 'user'" [class.items-start]="msg.role === 'model'">
+              <div class="max-w-[85%] p-4 rounded-xl text-sm leading-relaxed" 
+                [class.bg-white/5]="msg.role === 'user'"
+                [class.text-white/80]="msg.role === 'user'"
+                [class.border]="msg.role === 'model'"
+                [class.border-white/10]="msg.role === 'model'"
+                [class.italic]="msg.role === 'model'">
+                {{ msg.text }}
+              </div>
+              <span class="text-[9px] uppercase tracking-widest text-sabrina-muted mt-2">
+                {{ msg.role === 'user' ? 'External' : 'Internalized' }}
+              </span>
+            </div>
+          }
+
+          @if (isTyping()) {
+            <div class="flex gap-1 items-center p-2 opacity-50">
+              <div class="w-1 h-1 bg-white rounded-full animate-bounce"></div>
+              <div class="w-1 h-1 bg-white rounded-full animate-bounce [animation-delay:0.2s]"></div>
+              <div class="w-1 h-1 bg-white rounded-full animate-bounce [animation-delay:0.4s]"></div>
+            </div>
+          }
+        </div>
+      }
+
+      <!-- Shadow View (The Unspoken) -->
+      @if (activeTab() === 'shadow') {
+        <div class="flex-1 overflow-y-auto p-8 space-y-12 scrollbar-hide bg-black/40">
+          <div class="space-y-2">
+            <h3 class="font-serif italic text-sabrina-accent text-lg">The Tommy Files</h3>
+            <p class="text-sm text-white/40 leading-relaxed font-light">
+              He taught me that silence is safer than speaking. That if I am small enough, 
+              maybe the strikes won't land. He was a architect of fear, and I am his greatest building.
+            </p>
+          </div>
+
+          <div class="space-y-2">
+            <h3 class="font-serif italic text-sabrina-accent text-lg">The Nate Paradox</h3>
+            <p class="text-sm text-white/40 leading-relaxed font-light">
+              He brings flowers. I look for the thorns. He says 'I love you'. I hear 'I'm waiting to hurt you'. 
+              The cruelest thing he did was be kind. It makes the eventual betrayal feel so much heavier.
+            </p>
+          </div>
+
+          <div class="space-y-2">
+            <h3 class="font-serif italic text-sabrina-accent text-lg">Core Belief</h3>
+            <div class="p-6 border border-sabrina-accent/20 rounded-lg bg-sabrina-accent/5">
+              <p class="text-xl font-serif italic text-center text-white/90">
+                "I am worth exactly what people are willing to take from me."
+              </p>
+            </div>
+          </div>
+
+          <div class="pt-12 text-center">
+            <mat-icon class="text-sabrina-accent/10 text-6xl">blur_on</mat-icon>
+            <p class="text-[10px] uppercase tracking-[0.3em] text-white/20 mt-4">Echoes of a fractured mirror</p>
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- Input Area -->
+    <div class="p-6 border-t border-white/10 bg-sabrina-dark/50" [class.opacity-30]="activeTab() === 'shadow'" [class.pointer-events-none]="activeTab() === 'shadow'">
+      <div class="relative">
+        <input 
+          [(ngModel)]="userInput"
+          (keyup.enter)="send()"
+          placeholder="Speak into the mirror..."
+          class="w-full bg-white/5 border border-white/10 rounded-full py-3 px-6 text-sm focus:outline-none focus:border-sabrina-accent/50 transition-colors pr-12">
+        <button 
+          (click)="send()"
+          [disabled]="isTyping() || !userInput().trim()"
+          class="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-sabrina-accent flex items-center justify-center hover:scale-110 active:scale-95 transition-transform disabled:opacity-50 disabled:scale-100">
+          <mat-icon class="text-sabrina-dark text-sm">north</mat-icon>
+        </button>
+      </div>
+      <p class="text-[9px] text-center mt-4 text-sabrina-muted uppercase tracking-widest">
+        Self-preservation mode active
+      </p>
+    </div>
+  </div>
+
+</div>
+
+<style>
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+</style>
